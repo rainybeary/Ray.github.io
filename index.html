@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>typewriter — rainybeary</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="header" role="banner">
+      <div class="container">
+        <a href="#top" class="brand">@</a>
+        <nav class="nav">
+          <a href="#gallery">Галерея</a>
+          <!-- Переключатель режима -->
+          <button id="toggleMode" class="mode-btn" type="button" aria-pressed="false">Ввод</button>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top" class="main" role="main">
+      <section class="hero">
+        <div class="hero__wrap">
+          <div class="hero__pill">
+            <!-- Стабилизатор ширины -->
+            <div class="logo-wrap">
+              <span class="logo-shadow" aria-hidden="true"></span>
+
+              <!-- Отображение текста (typewriter ИЛИ эхо ввода) -->
+              <h1 class="logo-gradient" id="logoTarget"></h1>
+                <span class="caret" aria-hidden="true"></span>
+            </div>
+
+              <!-- Поле ввода такого же размера, как текст -->
+              <input
+                id="logoInput"
+                class="logo-input"
+                type="text"
+                inputmode="text"
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="Ввод текста"
+                style="display:none" />
+          </div>
+
+          <button class="scroll-down" aria-label="Прокрутить вниз" onclick="document.getElementById('gallery').scrollIntoView({behavior:'smooth'})">
+            <span class="chevron"></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="section" id="about">
+        <div class="container">
+          <blockquote class="quote-card">
+            <span class="quote-mark" aria-hidden="true">“</span>
+            <p class="quote-text">Интерфейс хорош тогда, когда его не замечают.</p>
+            <cite class="quote-author">— rainybeary</cite>
+          </blockquote>
+        </div>
+      </section>
+
+      <section id="gallery" class="section">
+        <div class="container">
+          <h2 class="section__title">Галерея</h2>
+          <div class="carousel">
+            <button class="car-btn prev" aria-label="Назад" id="prevBtn">&larr;</button>
+            <div class="track no-scrollbar" id="track" tabindex="0">
+              <figure class="slide"><img src="https://picsum.photos/seed/orange/800/600" alt="Апельсин"><figcaption>Апельсин</figcaption></figure>
+              <figure class="slide"><img src="https://picsum.photos/seed/cherry/800/600" alt="Вишня"><figcaption>Вишня</figcaption></figure>
+              <figure class="slide"><img src="https://picsum.photos/seed/apple/800/600" alt="Яблоко"><figcaption>Яблоко</figcaption></figure>
+              <figure class="slide"><img src="https://picsum.photos/seed/banana/800/600" alt="Банан"><figcaption>Банан</figcaption></figure>
+            </div>
+            <button class="car-btn next" aria-label="Вперёд" id="nextBtn">&rarr;</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer" role="contentinfo">
+      <div class="container">
+        <span>© 2025 rainybeary</span>
+        <div class="social">
+          <a href="#" aria-label="GitHub">GitHub</a>
+          <a href="#" aria-label="LinkedIn">LinkedIn</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="./script.js" defer></script>
+  </body>
+</html>
