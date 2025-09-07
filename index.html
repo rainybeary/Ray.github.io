@@ -4,17 +4,458 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>typewriter — rainybeary</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      /* --- Базовые переменные и сброс стилей --- */
+      :root{
+        --bg:#0d0e11; 
+        --text:#ececf2; 
+        --muted:#a7a8b5; 
+        --panel:#14151a; 
+        --accent:#b5c1d3;
+        --shadow:0 14px 36px rgba(0,0,0,.34);
+      }
+
+      *, *:before, *:after { box-sizing: border-box; }
+      html{scroll-behavior:smooth}
+      @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto} *{animation:none!important; transition:none!important} }
+      body{
+        margin:0; 
+        font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial; 
+        color:var(--text); 
+        background:var(--bg);
+        overflow-x: hidden;
+        /* Звездочки на фоне */
+        background-image: 
+            radial-gradient(2px 2px at 20px 30px, #fff, rgba(255,255,255,0)),
+            radial-gradient(2px 2px at 40px 70px, #fff, rgba(255,255,255,0)),
+            radial-gradient(1.5px 1.5px at 50px 160px, #fff, rgba(255,255,255,0)),
+            radial-gradient(1.5px 1.5px at 120px 90px, #fff, rgba(255,255,255,0)),
+            radial-gradient(1px 1px at 100px 140px, #fff, rgba(255,255,255,0)),
+            radial-gradient(1px 1px at 180px 210px, #fff, rgba(255,255,255,0));
+        background-repeat: repeat;
+        background-size: 500px 500px, 300px 300px, 200px 200px, 150px 150px, 120px 120px;
+        animation: star-move-1 100s linear infinite, star-move-2 200s linear infinite, star-move-3 300s linear infinite;
+      }
+      a{color:var(--text); text-decoration:none}
+      img{display:block; max-width:100%; height:auto}
+      .container{max-width:1120px; margin:0 auto; padding:0 20px}
+
+      /* --- Адаптация для мобильных устройств --- */
+      @media (max-width: 500px) {
+        .hero__pill {
+          width: 96vw;
+          min-height: 50px;
+          padding: 10px;
+          border-radius: 24px;
+          box-sizing: border-box;
+          flex-wrap: wrap;
+        }
+        .logo-wrap {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          text-align: center;
+        }
+        .logo-gradient {
+          font-size: clamp(12px, 3vw, 48px);
+          max-width: 96vw;
+          line-height: 1.18;
+          margin: 0;
+          display: inline-block;
+          overflow-wrap: break-word;
+        }
+        .caret {
+          height: 2.5em; 
+          width: 4px; 
+          margin-left: 2px;
+          display: inline-block;
+        }
+      }
+
+      /* Header */
+      .header{position:sticky; top:0; z-index:10; background:rgba(13,14,17,.7); backdrop-filter:blur(6px) saturate(120%); border-bottom:1px solid #20222b}
+      .header .container{
+        display:flex; 
+        align-items:center; 
+        justify-content:center;
+        padding:12px 20px;
+      }
+      /* Лунный градиент для текста */
+      .lunar-gradient {
+          font-weight: 800;
+          /* Обновленный градиент */
+          background: linear-gradient(
+              to right,
+              #4a4e52 0%,
+              #8d9299 25%,
+              #f4f6fa 50%,
+              #8d9299 75%,
+              #4a4e52 100%
+          );
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: textShine 5s ease-in-out infinite alternate;
+      }
+
+      @keyframes textShine {
+        0% { background-position: -100% 0%; }
+        100% { background-position: 100% 0%; }
+      }
+      .brand {
+        font-weight: 800; 
+        font-size: 16px;
+      }
+      
+      /* Hero */
+      .hero{
+        min-height:92svh; 
+        display:grid; 
+        place-items:center; 
+        padding:10svh 5vw 6svh; 
+        /* Фоновая анимация градиента для эффекта свечения */
+        background: radial-gradient(900px 500px at 20% -10%, rgba(181, 193, 211, 0.18), transparent 60%);
+        background-size: 200% 200%;
+        animation: background-pan 12s linear infinite;
+      }
+      @keyframes background-pan {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      
+      .hero__wrap{display:flex; flex-direction:column; align-items:center; gap:26px; contain: layout paint}
+
+      /* Пилюля сделана неподвижной */
+      .hero__pill {
+        position:relative; 
+        display:flex; 
+        align-items:center; 
+        gap:16px; 
+        justify-content:center;
+        width: 96vw;
+        min-height: clamp(140px, 18vw, 240px);
+        padding: clamp(22px, 3vw, 36px) clamp(48px, 6vw, 72px);
+        border-radius: 48px;
+        background:rgba(20,21,26,.66);
+        border:1px solid rgba(255,255,255,.10);
+        box-shadow:var(--shadow);
+        overflow: visible;
+      }
+      
+      /* теневая стабилизация ширины */
+      .logo-wrap{ 
+        position:relative; 
+        display:flex; 
+        align-items: center;
+        justify-content: center;
+        width:100%; 
+        text-align:center;
+      }
+      .logo-shadow{ 
+        position:absolute; 
+        inset:0; 
+        color:transparent; 
+        opacity:0; 
+        user-select:none; 
+        pointer-events:none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      /* Дополнительный элемент для свечения */
+      .pill-glow-inner {
+        position: absolute;
+        inset: 0;
+        border-radius: 48px;
+        background: transparent;
+        /* Свечение: мягкий ореол вокруг пилюли */
+        box-shadow: 0 0 15px 5px rgba(181, 193, 211, 0.2);
+        z-index: -1;
+      }
+
+      /* текст */
+      .typer-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .logo-gradient{
+        position:relative; 
+        display:inline-block; 
+        margin:0;
+        font-size: clamp(60px, 10vw, 180px);
+        letter-spacing:.01em; 
+        line-height:1.22;
+        font-variant-ligatures:none;
+        transform:translateZ(0);
+      }
+      
+      /* курсор как текст */
+      .caret{
+        width: 4px;
+        background: #ececf2;
+        border-radius: 2px;
+        filter: drop-shadow(0 0 8px rgba(236,236,242,.18));
+        animation: blink .9s step-end infinite;
+        align-self: center;
+        height: 2.5em; 
+      }
+      @keyframes blink{50%{opacity:0}}
+      @keyframes caret-shift{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+
+      /* поле ввода как текст */
+      .logo-input{
+        position:absolute; 
+        inset:0; 
+        left: clamp(48px, 6vw, 72px); 
+        right: clamp(48px, 6vw, 72px);
+        margin:auto; 
+        height: 1.25em;
+        width: auto; 
+        max-width: calc(100% - 2*clamp(48px,6vw,72px));
+        border: none; 
+        outline: none; 
+        background: transparent; 
+        color: transparent; 
+        caret-color: transparent;
+        font: inherit; 
+        line-height: 1.12; 
+        letter-spacing: .01em; 
+        text-align: center;
+        pointer-events: none;
+      }
+
+      /* остальной интерфейс */
+      .scroll-down{margin-top:4px; width:48px; height:48px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); display:grid; place-items:center; color:var(--text); cursor:pointer}
+      .chevron{width:14px; height:14px; border-right:2px solid var(--text); border-bottom:2px solid var(--text); transform:rotate(45deg); animation:bounce 1.3s ease-in-out infinite}
+      @keyframes bounce{0%,100%{transform:translateY(0) rotate(45deg)} 50%{transform:translateY(7px) rotate(45deg)}}
+
+      /* Quote/Footer */
+      .section{padding:56px 0}
+      .quote-card{position:relative; margin:0 auto; padding:24px 28px 20px; max-width:820px; border-radius:24px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); box-shadow:0 12px 30px rgba(0,0,0,.35)}
+      .quote-mark{position:absolute; top:-10px; left:16px; font-size:64px; line-height:1; opacity:.25; color:#dcdfe3}
+      
+      .quote-author{display:block; font-size:14px; color:var(--muted)}
+
+      /* Новая карточка */
+      .channel-card {
+        margin: 0 auto;
+        padding: 24px 28px;
+        max-width: 820px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, .06);
+        border: 1px solid rgba(255, 255, 255, .10);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      }
+      
+      .channel-avatar {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: #4a4e52;
+          border: 2px solid #8d9299;
+          box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.2);
+          overflow: hidden;
+      }
+      
+      .channel-card h3 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0;
+      }
+      
+      .channel-description {
+          font-size: 1rem;
+          line-height: 1.5;
+          max-width: 500px;
+          margin: 0 0 16px;
+          color: var(--text);
+      }
+
+      .subscribe-btn {
+        display: inline-block;
+        padding: 12px 24px;
+        border-radius: 999px;
+        background: #2580c8;
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+      }
+
+      .subscribe-btn:hover {
+        background: #1e6fae;
+        transform: translateY(-2px);
+      }
+
+      .footer{border-top:1px solid #1f2027; padding:20px 0; color:var(--muted)}
+      .footer .container{display:flex; align-items:center; justify-content:space-between}
+      
+      /* Анимация звезд */
+      @keyframes star-move-1 {
+        from { background-position: 0 0; }
+        to { background-position: 1000px 1000px; }
+      }
+      @keyframes star-move-2 {
+        from { background-position: 0 0; }
+        to { background-position: 2000px 2000px; }
+      }
+      @keyframes star-move-3 {
+        from { background-position: 0 0; }
+        to { background-position: 3000px 3000px; }
+      }
+
+      /* Анимация комет */
+      .comet {
+          position: absolute;
+          z-index: -2;
+          width: 80px;
+          height: 2px;
+          background: linear-gradient(90deg, transparent 0%, #fff 50%, transparent 100%);
+          border-radius: 999px;
+          box-shadow: 0 0 12px 2px rgba(255, 255, 255, 0.6), 0 0 4px 1px #fff;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          opacity: 0;
+      }
+
+      .comet-1 {
+          animation-name: comet-flight;
+          animation-duration: 20s;
+          animation-delay: 0s;
+          transform: rotate(45deg);
+      }
+      .comet-2 {
+          animation-name: comet-flight;
+          animation-duration: 25s;
+          animation-delay: 5s;
+          transform: rotate(60deg);
+      }
+      .comet-3 {
+          animation-name: comet-flight;
+          animation-duration: 18s;
+          animation-delay: 10s;
+          transform: rotate(30deg);
+      }
+      /* Анимация комет, летящих снизу */
+      .comet-bottom-1 {
+          animation-name: comet-flight-bottom;
+          animation-duration: 22s;
+          animation-delay: 2s;
+          transform: rotate(-135deg);
+      }
+      .comet-bottom-2 {
+          animation-name: comet-flight-bottom;
+          animation-duration: 28s;
+          animation-delay: 7s;
+          transform: rotate(-150deg);
+      }
+
+      @keyframes comet-flight {
+          0% {
+              transform: translate(-100vw, -10vh) rotate(45deg);
+              opacity: 0;
+          }
+          5% {
+              opacity: 1;
+          }
+          10% {
+              transform: translate(50vw, 50vh) rotate(45deg);
+              opacity: 0;
+          }
+          100% {
+              opacity: 0;
+          }
+      }
+
+      @keyframes comet-flight-bottom {
+          0% {
+              transform: translate(100vw, 110vh) rotate(-135deg);
+              opacity: 0;
+          }
+          5% {
+              opacity: 1;
+          }
+          10% {
+              transform: translate(-50vw, -50vh) rotate(-135deg);
+              opacity: 0;
+          }
+          100% {
+              opacity: 0;
+          }
+      }
+      
+      /* Черные дыры */
+      .black-hole {
+          position: absolute;
+          width: 15vw;
+          height: 15vw;
+          max-width: 200px;
+          max-height: 200px;
+          border-radius: 50%;
+          background: #000;
+          /* Эффект аккреционного диска */
+          box-shadow: inset 0 0 100px 10px rgba(255, 255, 255, 0.05),
+                      0 0 20px 2px rgba(255, 255, 255, 0.05);
+          animation: spin 60s linear infinite;
+          z-index: -3; /* Находится под другими элементами */
+          opacity: 0.8;
+      }
+      .black-hole-1 {
+          top: 15%;
+          left: 10%;
+          width: 12vw;
+          height: 12vw;
+      }
+      .black-hole-2 {
+          bottom: 25%;
+          right: 15%;
+          width: 10vw;
+          height: 10vw;
+          animation-duration: 80s;
+      }
+      @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+      }
+
+      /* Холст для взрывов */
+      #explosionCanvas {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: -1;
+          pointer-events: none; /* Пропускает клики */
+      }
+
+    </style>
   </head>
   <body>
+    <div class="comet comet-1"></div>
+    <div class="comet comet-2"></div>
+    <div class="comet comet-3"></div>
+    <div class="comet comet-bottom-1"></div>
+    <div class="comet comet-bottom-2"></div>
+    <div class="black-hole black-hole-1"></div>
+    <div class="black-hole black-hole-2"></div>
+    <!-- Холст для взрывов -->
+    <canvas id="explosionCanvas"></canvas>
+    
     <header class="header" role="banner">
       <div class="container">
-        <a href="#top" class="brand">@</a>
-        <nav class="nav">
-          <a href="#gallery">Галерея</a>
-          <!-- Переключатель режима -->
-          <button id="toggleMode" class="mode-btn" type="button" aria-pressed="false">Ввод</button>
-        </nav>
+        <a href="#top" class="brand lunar-gradient">KVADROBER</a>
       </div>
     </header>
 
@@ -22,28 +463,31 @@
       <section class="hero">
         <div class="hero__wrap">
           <div class="hero__pill">
+            <div class="pill-glow-inner"></div>
             <!-- Стабилизатор ширины -->
             <div class="logo-wrap">
               <span class="logo-shadow" aria-hidden="true"></span>
-
-              <!-- Отображение текста (typewriter ИЛИ эхо ввода) -->
-              <h1 class="logo-gradient" id="logoTarget"></h1>
+              <!-- Контейнер для текста и каретки -->
+              <div class="typer-container">
+                <!-- Отображение текста (typewriter ИЛИ эхо ввода) -->
+                <h1 class="logo-gradient lunar-gradient" id="logoTarget"></h1>
                 <span class="caret" aria-hidden="true"></span>
+              </div>
             </div>
 
-              <!-- Поле ввода такого же размера, как текст -->
-              <input
-                id="logoInput"
-                class="logo-input"
-                type="text"
-                inputmode="text"
-                autocomplete="off"
-                spellcheck="false"
-                aria-label="Ввод текста"
-                style="display:none" />
+            <!-- Поле ввода такого же размера, как текст -->
+            <input
+              id="logoInput"
+              class="logo-input"
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              spellcheck="false"
+              aria-label="Ввод текста"
+              style="display:none" />
           </div>
 
-          <button class="scroll-down" aria-label="Прокрутить вниз" onclick="document.getElementById('gallery').scrollIntoView({behavior:'smooth'})">
+          <button class="scroll-down" aria-label="Прокрутить вниз" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">
             <span class="chevron"></span>
           </button>
         </div>
@@ -53,24 +497,21 @@
         <div class="container">
           <blockquote class="quote-card">
             <span class="quote-mark" aria-hidden="true">“</span>
-            <p class="quote-text">Интерфейс хорош тогда, когда его не замечают.</p>
+            <p class="quote-text lunar-gradient">Интерфейс хорош тогда, когда его не замечают.</p>
             <cite class="quote-author">— rainybeary</cite>
           </blockquote>
         </div>
       </section>
 
-      <section id="gallery" class="section">
+      <section class="section">
         <div class="container">
-          <h2 class="section__title">Галерея</h2>
-          <div class="carousel">
-            <button class="car-btn prev" aria-label="Назад" id="prevBtn">&larr;</button>
-            <div class="track no-scrollbar" id="track" tabindex="0">
-              <figure class="slide"><img src="https://picsum.photos/seed/orange/800/600" alt="Апельсин"><figcaption>Апельсин</figcaption></figure>
-              <figure class="slide"><img src="https://picsum.photos/seed/cherry/800/600" alt="Вишня"><figcaption>Вишня</figcaption></figure>
-              <figure class="slide"><img src="https://picsum.photos/seed/apple/800/600" alt="Яблоко"><figcaption>Яблоко</figcaption></figure>
-              <figure class="slide"><img src="https://picsum.photos/seed/banana/800/600" alt="Банан"><figcaption>Банан</figcaption></figure>
+          <div class="channel-card">
+            <div class="channel-avatar" id="channelAvatar">
+              <!-- Изображение будет загружено сюда с помощью JS -->
             </div>
-            <button class="car-btn next" aria-label="Вперёд" id="nextBtn">&rarr;</button>
+            <h3 class="lunar-gradient">Первый этаж</h3>
+            <p class="channel-description">В канале публикуются красивые и атмосферные виды на Москву с высоты.</p>
+            <a href="https://t.me/+g9L0D7Mw4wg4Y2Iy" target="_blank" class="subscribe-btn">Подписаться</a>
           </div>
         </div>
       </section>
@@ -80,12 +521,158 @@
       <div class="container">
         <span>© 2025 rainybeary</span>
         <div class="social">
-          <a href="#" aria-label="GitHub">GitHub</a>
-          <a href="#" aria-label="LinkedIn">LinkedIn</a>
+          kvadrobers team ❤️
         </div>
       </div>
     </footer>
 
-    <script src="./script.js" defer></script>
+    <script>
+      /* ---------- Typewriter + режим ВВОДА ---------- */
+      const WORDS = ['@rainybeary','firstFloor','durov','gorgeous','be strong','1337','kvadrober','scam','pepe','moscow'];
+
+      const el      = document.getElementById('logoTarget');
+      const caret   = document.querySelector('.logo-wrap .caret');
+      const shadow  = document.querySelector('.logo-shadow');
+
+      const TYPE_DELAY = 80;
+      const ERASE_DELAY = 50;
+      const HOLD_DONE  = 1500;
+      const HOLD_EMPTY = 400;
+
+      shadow.textContent = WORDS.reduce((a,b)=> a.length>b.length?a:b, '');
+
+      /* Печать/стирание */
+      async function typeWord(word){
+        el.textContent = '';
+        caret.style.display = 'inline-block';
+        await sleep(HOLD_EMPTY);
+        for (let i=0;i<word.length;i++){
+          el.textContent = word.slice(0, i+1);
+          await sleep(TYPE_DELAY);
+        }
+      }
+      async function eraseWord(){
+        const text = el.textContent;
+        for (let i=text.length; i>0; i--){
+          el.textContent = text.slice(0, i-1);
+          await sleep(ERASE_DELAY);
+        }
+        caret.style.display = 'none';
+      }
+      function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+      (async function loop(){
+        let i = 0;
+        while (true){
+          const word = WORDS[i % WORDS.length];
+          await typeWord(word);
+          await sleep(HOLD_DONE);
+          await eraseWord();
+          i++;
+        }
+      })();
+
+      /* ---------- Динамическая загрузка аватара ---------- */
+      window.onload = function() {
+        const avatarContainer = document.getElementById('channelAvatar');
+        const img = new Image();
+        img.src = 'image.png';
+        img.alt = 'Аватар канала';
+
+        img.onload = () => {
+          avatarContainer.appendChild(img);
+        };
+        img.onerror = () => {
+          avatarContainer.innerHTML = '<p style="text-align: center; padding: 10px; color: var(--muted);">Изображение не загружено.</p>';
+        };
+      };
+
+      /* ---------- Анимация взрывов на холсте ---------- */
+      const canvas = document.getElementById('explosionCanvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      
+      // Массив цветов для взрывов
+      const colors = ['#ffffff', '#ffefd5', '#ffa07a', '#ff6347', '#ffd700'];
+
+      // Конструктор частицы
+      class Particle {
+        constructor(x, y) {
+          this.x = x;
+          this.y = y;
+          this.radius = Math.random() * 2 + 1;
+          this.color = colors[Math.floor(Math.random() * colors.length)];
+          this.velocity = {
+            x: (Math.random() - 0.5) * 5,
+            y: (Math.random() - 0.5) * 5,
+          };
+          this.alpha = 1;
+          this.friction = 0.99;
+        }
+
+        draw() {
+          ctx.save();
+          ctx.globalAlpha = this.alpha;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+          ctx.fillStyle = this.color;
+          ctx.fill();
+          ctx.restore();
+        }
+
+        update() {
+          this.velocity.x *= this.friction;
+          this.velocity.y *= this.friction;
+          this.x += this.velocity.x;
+          this.y += this.velocity.y;
+          this.alpha -= 0.01;
+        }
+      }
+
+      // Функция для создания взрыва
+      function createExplosion(x, y) {
+        const particleCount = 20;
+        for (let i = 0; i < particleCount; i++) {
+          particles.push(new Particle(x, y));
+        }
+      }
+
+      // Главный цикл анимации
+      function animate() {
+        requestAnimationFrame(animate);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        particles.forEach((particle, index) => {
+          if (particle.alpha <= 0) {
+            particles.splice(index, 1);
+          } else {
+            particle.update();
+            particle.draw();
+          }
+        });
+      }
+
+      // Запуск анимации
+      function startExplosions() {
+          // Создаем взрыв каждые 3-6 секунд в случайном месте
+          setInterval(() => {
+              const x = Math.random() * canvas.width;
+              const y = Math.random() * canvas.height;
+              createExplosion(x, y);
+          }, Math.random() * 3000 + 3000);
+      }
+      
+      // Изменение размера холста
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+      animate();
+      startExplosions();
+    </script>
   </body>
 </html>
+
